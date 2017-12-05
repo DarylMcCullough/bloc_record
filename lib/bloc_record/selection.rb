@@ -131,7 +131,7 @@ module Selection
             SQL
             arr = rows_to_array(rows)
             arr.each do |row|
-                yield(row)
+                yield(row, arr)
             end
             offset = offset + batch_size 
         end until arr.length < batch_size
