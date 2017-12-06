@@ -96,18 +96,6 @@ module Selection
         SQL
         rows_to_array(rows)
     end
- 
-    private
-    def init_object_from_row(row)
-        if row
-            data = Hash[columns.zip(row)]
-            new(data)
-        end
-    end
-    
-    def rows_to_array(rows)
-        rows.map { |row| new(Hash[columns.zip(row)]) }
-    end
     
     def find_each(start:, batch_size:)
         
@@ -139,6 +127,18 @@ module Selection
         end until arr.length < batch_size
     end
     
+    private
+    def init_object_from_row(row)
+        if row
+            data = Hash[columns.zip(row)]
+            new(data)
+        end
+    end
+    
+    def rows_to_array(rows)
+        rows.map { |row| new(Hash[columns.zip(row)]) }
+    end
+
     def method_missing(m, *args, &block)
         m = m.to_s # m will be a symbol until coerced to a stringd
         # we want to handle the following case:
