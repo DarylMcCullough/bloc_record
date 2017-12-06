@@ -124,6 +124,7 @@ module Selection
     def find_in_batches(start:, batch_size:)
         
         offset = start
+        batch_num = 0
         begin
             rows = connection.execute <<-SQL
                 SELECT #{columns.join ","} FROM #{table}
@@ -131,9 +132,10 @@ module Selection
             SQL
             arr = rows_to_array(rows)
             arr.each do |row|
-                yield(row, arr)
+                yield(row, batch_num)
             end
-            offset = offset + batch_size 
+            offset = offset + batch_size
+            batch_num = batch_num + 1
         end until arr.length < batch_size
     end
     
