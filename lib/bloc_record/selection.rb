@@ -128,22 +128,27 @@ module Selection
     end
     
     def where(*args)
-        if args.count > 1
-            expression = args.shift
-            params = args
+        if args.count == 0
+            where_clause = ";"
         else
-            case args.first
-            when String
-                expression = args.first
-            when Hash
-                expression_hash = BlocRecord::Utility.convert_keys(args.first)
-                expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+            if args.count > 1
+                expression = args.shift
+                params = args
+            else
+                case args.first
+                when String
+                    expression = args.first
+                when Hash
+                    expression_hash = BlocRecord::Utility.convert_keys(args.first)
+                    expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+                end
             end
+            where_clause = "WHERE #{expression};"
         end
 
         sql = <<-SQL
             SELECT #{columns.join ","} FROM #{table}
-            WHERE #{expression};
+            #{where_clause}
         SQL
 
         rows = connection.execute(sql, params)
@@ -250,9 +255,7 @@ module Selection
 		result = result.join(" ")
         return result
     end
-    
-    ##
-    
+
     def get_order_direction(args)
         if args.length == 0
             return 'ASC' # no arguments, use the default

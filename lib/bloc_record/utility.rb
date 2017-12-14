@@ -22,6 +22,9 @@ module BlocRecord
         end
  
         def convert_keys(options)
+            if not(options.is_a? Hash)
+                raise ArgumentError("'convert_keys' takes a Hash as an argument")
+            end
             options.keys.each {|k| options[k.to_s] = options.delete(k) if k.kind_of?(Symbol)}
             options
         end
