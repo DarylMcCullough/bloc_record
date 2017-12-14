@@ -25,5 +25,22 @@ module BlocRecord
                 end
             end
         end
+        
+        def not(**kwargs)
+            BlocRecord::Utility.convert_keys(kwargs)
+            retval = []
+            self.each do |record|
+                include = true
+                kwargs.each do |key, value|
+                    if record[key] == value
+                        include = false
+                        break
+                    end
+                end
+                if include
+                    retval.append(record)
+                end
+            end
+        end
     end
 end
