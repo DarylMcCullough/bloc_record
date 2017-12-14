@@ -15,7 +15,7 @@ module BlocRecord
             self.each do |record|
                 include = true
                 kwargs.each do |key, value|
-                    if record[key] != value
+                    if record.send(key) != value
                         include = false
                         break
                     end
@@ -32,7 +32,7 @@ module BlocRecord
             self.each do |record|
                 include = true
                 kwargs.each do |key, value|
-                    if record[key] == value
+                    if record.send(key) == value
                         include = false
                         break
                     end

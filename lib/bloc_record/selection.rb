@@ -9,7 +9,11 @@ module Selection
             SELECT #{columns.join ","} FROM #{table}
             WHERE id = #{id};
         SQL
- 
+
+        if row == nil
+            return nil
+        end
+        
         data = Hash[columns.zip(row)]
         new(data)
     end

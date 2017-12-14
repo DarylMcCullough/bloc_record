@@ -51,7 +51,7 @@ module Persistence
             return true
         end
         # otherwise raise an exception
-        raise NoMethodError("no method called: #{m}")
+        raise Exception("no method called: #{m}")
     end
 
     module ClassMethods
