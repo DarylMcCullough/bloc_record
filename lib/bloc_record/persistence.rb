@@ -51,7 +51,7 @@ module Persistence
             return true
         end
         # otherwise raise an exception
-        raise Exception("no method called: #{m}")
+        super(m, *args, $block)
     end
 
     module ClassMethods
