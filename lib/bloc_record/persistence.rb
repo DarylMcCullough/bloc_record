@@ -28,6 +28,10 @@ module Persistence
         true
     end
     
+    def destroy
+        self.class.destroy(self.id)
+    end
+    
     def update_attribute(attribute, value)
         self.class.update(self.id, { attribute => value })
     end
@@ -55,6 +59,47 @@ module Persistence
     end
 
     module ClassMethods
+        def destroy(*id)
+            if id.length > 1
+                where_clause = "WHERE id IN (#{id.join(",")});"
+            else
+                where_clause = "WHERE id = #{id.first};"
+            end
+            
+            connection.execute <<-SQL
+                DELETE FROM #{table} #{where_clause}
+            SQL
+            true
+        end
+        
+        def destroy_all(*args)
+            params = nil
+            if args.count == 0
+                where_clause = ";"
+            else
+                if args.count > 1
+                    expression = args.shift
+                    params = args
+                else
+                    case args.first
+                    when String
+                        expression = args.first
+                    when Hash
+                        expression_hash = BlocRecord::Utility.convert_keys(args.first)
+                        expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+                    end
+                end
+                where_clause = "WHERE #{expression};"
+            end
+            sql = <<-SQL
+                DELETE FROM #{table}
+                #{where_clause}
+            SQL
+            
+            connection.execute(sql, params)
+            true
+        end
+        
         def create(attrs)
             attrs = BlocRecord::Utility.convert_keys(attrs)
             attrs.delete "id"
