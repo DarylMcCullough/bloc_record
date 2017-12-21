@@ -233,28 +233,6 @@ module Selection
     
     private
     
-    def get_where_clause(*args)
-        if args.count == 0
-            where_clause = ""
-        else
-            if args.count > 1
-                expression = args.shift
-                params = args
-            else
-                case args.first
-                when String
-                    expression = args.first
-                when Hash
-                    expression_hash = BlocRecord::Utility.convert_keys(args.first)
-                    expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
-                end
-            end
-            where_clause = "WHERE #{expression}"
-        end
-
-        return {where_clause: where_clause, params: params}
-    end
-    
     def get_join_statement(table, *args, **kwargs)
         # The first args are interpreted as table names.
         # It is assumed that each table that uses foreign keys
