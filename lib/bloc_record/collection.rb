@@ -14,40 +14,32 @@ module BlocRecord
         
         def destroy_all(*args)
             if self.count == 0
-                return
+                return True # nothing to do in this case
             end
-            
             if args.count == 0
                 self.each do |entry|
                     entry.destroy()
                 end
-                return
+                return True
             end
+            params = nil
             if args.count > 1
                 expression = args.shift
-                id_expression = self.get_id_expression()
-                expression = "(#{expression}) AND (#{id_expression})"
                 params = args
-                self.first.class.destroy_all(expression, *params)
-                return
             else
                 case args.first
                 when String
                     expression = args.first
-                    id_expression = self.get_id_expression()
-                    expression = "(#{expression}) AND (#{id_expression})"
-                    self.first.class.destroy_all(expression)
-                    return
                 when Hash
-                    hash = args.first
-                    self.each do |entry|
-                        hash["id"] = entry.send("id")
-                    end
-                    self.first.class.destroy_all(hash)
-                    return
+                    expression_hash = BlocRecord::Utility.convert_keys(args.first)
+                    expression = expression_hash.map {|key, value| "#{key}=#{BlocRecord::Utility.sql_strings(value)}"}.join(" and ")
+                else
+                    raise ArgumentError.new("destroy_all: arguments must be strings or hashes")
                 end
             end
-            raise ArgumentError.new("destroy_all: arguments must be strings or hashes")
+            id_expression = self.get_id_expression()
+            expression = "(#{expresion}) AND (#{id_expression})"
+            return self.first.class.destroy_all(expression, *params)
         end
         
         def where(**kwargs)
