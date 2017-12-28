@@ -297,7 +297,6 @@ module Selection
             value = args[0]
             return find_by(attribute, value)
         end
-        # otherwise raise an exception
-        raise NoMethodError("no method called: #{m}")
+        super(m, *args, &block)
     end
 end
