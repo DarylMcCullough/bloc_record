@@ -19,7 +19,7 @@ module Persistence
         
         fields = self.class.attributes.map { |col| "#{col}=#{BlocRecord::Utility.sql_strings(self.instance_variable_get("@#{col}"))}" }.join(",")
  
-        self.class.connection.execute <<-SQL
+        self.class.execute <<-SQL
             UPDATE #{self.class.table}
             SET #{fields}
             WHERE id = #{self.id};
@@ -66,7 +66,7 @@ module Persistence
                 where_clause = "WHERE id = #{id.first};"
             end
             
-            connection.execute <<-SQL
+            execute <<-SQL
                 DELETE FROM #{table} #{where_clause}
             SQL
             true
@@ -96,7 +96,7 @@ module Persistence
                 #{where_clause}
             SQL
             
-            connection.execute(sql, params)
+            execute(sql, params)
             true
         end
         
@@ -113,10 +113,10 @@ module Persistence
             
             puts sql
             
-            connection.execute sql
+            execute sql
  
             data = Hash[attributes.zip attrs.values]
-            data["id"] = connection.execute("SELECT last_insert_rowid();")[0][0]
+            data["id"] = execute("SELECT last_insert_rowid();")[0][0]
             new(data)
         end
         

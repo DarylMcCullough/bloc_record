@@ -8,6 +8,7 @@
     def schema
         unless @schema
             @schema = {}
+            if Blo
             connection.table_info(table) do |col|
                 @schema[col["name"]] = col["type"]
             end
@@ -24,7 +25,7 @@
     end
     
     def count
-        connection.execute(<<-SQL)[0][0]
+        execute(<<-SQL)[0][0]
             SELECT COUNT(*) FROM #{table}
         SQL
     end

@@ -5,7 +5,7 @@ module Selection
         if not(id.is_a? Integer) || id < 0
             raise ArgumentError.new("An id must be a nonnegative integer")
         end
-        row = connection.get_first_row <<-SQL
+        row = get_first_row <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             WHERE id = #{id};
         SQL
@@ -30,7 +30,7 @@ module Selection
             find_one(ids.first)
         else
             
-            rows = connection.execute <<-SQL
+            rows = execute <<-SQL
                 SELECT #{columns.join ","} FROM #{table}
                 WHERE id IN (#{ids.join(",")});
             SQL
@@ -43,7 +43,7 @@ module Selection
         if not(attribute.is_a? String) and not(attribute.is_a? Symbol)
             raise ArgumentError.new("the first argument to 'find_by' must be a string or symbol")
         end
-        row = connection.get_first_row <<-SQL
+        row = get_first_row <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             WHERE #{attribute} = #{BlocRecord::Utility.sql_strings(value)};
         SQL
@@ -56,7 +56,7 @@ module Selection
             raise ArgumentError.new("the argument to 'take' must be a positive integer")
         end
         if num > 1
-            rows = connection.execute <<-SQL
+            rows = execute <<-SQL
                 SELECT #{columns.join ","} FROM #{table}
                 ORDER BY random()
                 LIMIT #{num};
@@ -69,7 +69,7 @@ module Selection
     end
     
     def take_one
-        row = connection.get_first_row <<-SQL
+        row = get_first_row <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             ORDER BY random()
             LIMIT 1;
@@ -79,7 +79,7 @@ module Selection
     end
     
     def first
-        row = connection.get_first_row <<-SQL
+        row = get_first_row <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             ORDER BY id ASC LIMIT 1;
         SQL
@@ -87,7 +87,7 @@ module Selection
     end
  
     def last
-        row = connection.get_first_row <<-SQL
+        row = get_first_row <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             ORDER BY id DESC LIMIT 1;
         SQL
@@ -95,7 +95,7 @@ module Selection
     end
 
     def all
-        rows = connection.execute <<-SQL
+        rows = execute <<-SQL
             SELECT #{columns.join ","} FROM #{table};
         SQL
         rows_to_array(rows)
@@ -103,7 +103,7 @@ module Selection
     
     def find_each(start:, batch_size:)
         
-        rows = connection.execute <<-SQL
+        rows = execute <<-SQL
             SELECT #{columns.join ","} FROM #{table}
             LIMIT #{batch_size} OFFSET #{start};
         SQL
@@ -118,7 +118,7 @@ module Selection
         offset = start
         batch_num = 0
         begin
-            rows = connection.execute <<-SQL
+            rows = execute <<-SQL
                 SELECT #{columns.join ","} FROM #{table}
                 LIMIT #{batch_size} OFFSET #{offset};
             SQL
@@ -155,7 +155,7 @@ module Selection
             #{where_clause}
         SQL
 
-        rows = connection.execute(sql, params)
+        rows = execute(sql, params)
         rows_to_array(rows)
     end
 
@@ -192,7 +192,7 @@ module Selection
         end
         order = arglist.join(",")
 
-        rows = connection.execute <<-SQL
+        rows = execute <<-SQL
             SELECT * FROM #{table}
             ORDER BY #{order};
         SQL
@@ -211,17 +211,17 @@ module Selection
         
         if args.count + kwargs.count > 1
             joins = get_join_statement(table, *args, **kwargs) #see below
-            rows = connection.execute <<-SQL
+            rows = execute <<-SQL
                 SELECT * FROM #{table} #{joins}
             SQL
         else
             case args.first
             when String
-                rows = connection.execute <<-SQL
+                rows = execute <<-SQL
                     SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(args.first)};
                 SQL
             when Symbol
-                rows = connection.execute <<-SQL
+                rows = execute <<-SQL
                     SELECT * FROM #{table}
                     INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
                 SQL
