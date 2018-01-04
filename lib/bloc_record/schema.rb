@@ -8,9 +8,20 @@
     def schema
         unless @schema
             @schema = {}
-            if Blo
-            connection.table_info(table) do |col|
-                @schema[col["name"]] = col["type"]
+            case BlocRecord.db_type
+            when :sqlite3
+                connection.table_info(table) do |col|
+                    @schema[col["name"]] = col["type"]
+                end
+                return @schema
+            when :pg
+                rows = execute <<-SQL
+                            SELECT *
+                            FROM information_schema.columns
+                            WHERE table_schema = 'public'
+                            AND table_name   = '#{table}';
+                        SQL
+                
             end
         end
         @schema
@@ -25,7 +36,7 @@
     end
     
     def count
-        execute(<<-SQL)[0][0]
+        connection.execute(<<-SQL)[0][0]
             SELECT COUNT(*) FROM #{table}
         SQL
     end
