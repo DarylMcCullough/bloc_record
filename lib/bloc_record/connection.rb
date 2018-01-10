@@ -22,7 +22,8 @@ module Connection
         when :sqlite3
             return connection.execute(args)
         when :pg
-            return connection.exec(args)
+            rows = connection.exec(args)
+            return rows.values()
         end
     end
     
@@ -31,7 +32,7 @@ module Connection
         when :sqlite3
             return connection.get_first_row(args)
         when :pg
-            results = connect.execute(args)
+            results = execute(args)
             return results.first
         end
     end

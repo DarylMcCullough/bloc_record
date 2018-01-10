@@ -15,13 +15,19 @@
                 end
                 return @schema
             when :pg
+                # https://dba.stackexchange.com/questions/22362/how-do-i-list-all-columns-for-a-specified-table
+                # https://www.postgresql.org/docs/current/static/infoschema-columns.html
                 rows = execute <<-SQL
                             SELECT *
                             FROM information_schema.columns
                             WHERE table_schema = 'public'
                             AND table_name   = '#{table}';
                         SQL
-                
+                arr = rows_to_array(rows)
+                arr.each do |row|
+                    @schema[row["column_name"]] = row["data_type"]
+                end
+                return @schema
             end
         end
         @schema
@@ -36,7 +42,7 @@
     end
     
     def count
-        connection.execute(<<-SQL)[0][0]
+        execute(<<-SQL)[0][0]
             SELECT COUNT(*) FROM #{table}
         SQL
     end
