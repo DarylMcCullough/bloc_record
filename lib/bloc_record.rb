@@ -15,8 +15,8 @@ module BlocRecord
         @db_type = :sqlite3
     end
   
-    def self.connect_to(args, db_type)
-        case db_type.to_s
+    def self.connect_to(args, dbt)
+        case dbt.to_s
         when "pg"
             args = self.parse_pg_args(args)
             self.connect_pg(**args)
@@ -25,12 +25,16 @@ module BlocRecord
             self.connect_sqlite(args)
             return
         else
-            raise ArgumentError.new("'connect_to': database type not understood: #{db_type}")
+            raise ArgumentError.new("'connect_to': database type not understood: #{dbt}")
         end
     end
  
     def self.database_filename
         @database_filename
+    end
+    
+    def self.db_type
+        @db_type
     end
     
     private
